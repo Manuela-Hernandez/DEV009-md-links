@@ -1,7 +1,6 @@
 const mdLinks = require('./mdlinks.js');
 
-mdLinks('./thumb.png').then(() => {
-    
+mdLinks('./file.md').then(() => {
 })
 .catch((error) => {
     console.log(error)});

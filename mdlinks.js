@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const readFile = require('./data.js');
 
 
 const mdLinks = (rutaPath) => {
@@ -9,7 +10,6 @@ const mdLinks = (rutaPath) => {
     // console.log(absolutePath);
     // Identificar si la ruta existe.
     if (!fs.existsSync(absolutePath)) {
-      // Verificar si la ruta ingresada es absoluta
       // Si no existe rechazar la promesa.
       reject('La ruta no existe');
 
@@ -18,8 +18,12 @@ const mdLinks = (rutaPath) => {
     // console.log(extensionArchivo);
     if (extensionArchivo !== '.md') {
       reject('El archivo no es de tipo Markdown'); 
-    } 
-
+    }
+    readFile(absolutePath).then((archivoLeido) => {
+      resolve(archivoLeido);
+    })
+    .catch((error) => {
+        reject(error)});
 
   })
 }
