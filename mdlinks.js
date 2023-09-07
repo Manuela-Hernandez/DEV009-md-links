@@ -1,29 +1,35 @@
 const fs = require('fs');
 const path = require('path');
-const readFile = require('./data.js');
+const { getFileContent, extractLinks } = require('./data.js');
+// const extraerLinks = require('./data.js');
 
 
 const mdLinks = (rutaPath) => {
   return new Promise((resolve, reject) => {
-    // Ruta absoluta
     const absolutePath = path.resolve(rutaPath);
     // console.log(absolutePath);
-    // Identificar si la ruta existe.
     if (!fs.existsSync(absolutePath)) {
-      // Si no existe rechazar la promesa.
       reject('La ruta no existe');
-
-    } 
+    }
+    const archivoMarkdown = ['.md', '.mkd', '.mdwn', '.mdown', '.mdtxt', '.mdtext', '.markdown', '.text'];
     const extensionArchivo = path.extname(rutaPath);
     // console.log(extensionArchivo);
-    if (extensionArchivo !== '.md') {
-      reject('El archivo no es de tipo Markdown'); 
+    if (!archivoMarkdown.includes(extensionArchivo)) {
+      reject('El archivo no es de tipo Markdown');
+    } else {
+      getFileContent(absolutePath).then((archivoLeido) => {
+        // console.log('archivoleido', archivoLeido)
+        extractLinks(archivoLeido, absolutePath).then((links) => {
+          resolve(links);
+        })
+          // .catch((error) => {
+          //   reject(error)
+          // });
+      })
+        .catch((error) => {
+          reject(error)
+        });
     }
-    readFile(absolutePath).then((archivoLeido) => {
-      resolve(archivoLeido);
-    })
-    .catch((error) => {
-        reject(error)});
 
   })
 }

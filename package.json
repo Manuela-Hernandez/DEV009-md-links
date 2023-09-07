@@ -9,9 +9,10 @@
     "commit": "24f5a51ee0a15f345b59fcd2ef44c3616abdfce5"
   },
   "dependencies": {
-    "jest": "^29.6.4"
+    "jest": "^29.6.4",
+    "markdown-it": "^13.0.1"
   },
   "scripts": {
-  "test": "jest --coverage"
+    "test": "jest --coverage"
   }
 }
