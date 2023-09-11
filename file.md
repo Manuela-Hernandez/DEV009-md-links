@@ -6,6 +6,8 @@
 
 [Jest](https://jestjs.io/)
 
+[Figma](https://www.figma)
+
 ## 1. Preámbulo
 
 

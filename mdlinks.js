@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const { getFileContent, extractLinks } = require('./data.js');
+const { getFileContent, extractLinks, validateLink } = require('./data.js');
+const { error } = require('console');
 // const extraerLinks = require('./data.js');
 
 
-const mdLinks = (rutaPath) => {
+const mdLinks = (rutaPath, validate) => {
   return new Promise((resolve, reject) => {
     const absolutePath = path.resolve(rutaPath);
     // console.log(absolutePath);
@@ -20,11 +21,23 @@ const mdLinks = (rutaPath) => {
       getFileContent(absolutePath).then((archivoLeido) => {
         // console.log('archivoleido', archivoLeido)
         extractLinks(archivoLeido, absolutePath).then((links) => {
-          resolve(links);
+          // console.log("extractLinks")
+          // console.log("validate: ", validate)
+
+          if (validate) {
+            const resultado = links.map(link => {
+              return validateLink(link).then((status) => {
+                return { ...link, ...status }
+              })
+            });
+
+            Promise.all(resultado).then((linksValidados) => {
+              resolve(linksValidados);
+            })
+          } else {
+            resolve(links);
+          }
         })
-          // .catch((error) => {
-          //   reject(error)
-          // });
       })
         .catch((error) => {
           reject(error)
