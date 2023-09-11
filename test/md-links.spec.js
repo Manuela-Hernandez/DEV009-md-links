@@ -1,18 +1,16 @@
 const mdLinks = require('../mdlinks.js');
 const fs = require('fs');
 const fsPromesas = require('fs/promises');
-// const mardownItMock = require ('markdown-it');
-// const markdownIt = jest.requireActual('markdown-it');
+const axios = require('axios');
 
 jest.mock('fs');
 jest.mock('fs/promises');
-// jest.mock('markdown-it');
+jest.mock('axios');
 
 describe('mdLinks', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
 
   it('Deberia de rechazar con un error cuando la ruta no exista', () => {
     fs.existsSync.mockReturnValueOnce(false)
@@ -27,12 +25,12 @@ describe('mdLinks', () => {
       expect(error).toBe('El archivo no es de tipo Markdown');
     });
   })
-  it('Deberia leer el archivo  Markdown y devolver los links', () => {
+  it('Deberia leer el archivo  Markdown y devolver los links sin validarlos', () => {
     fs.existsSync.mockReturnValueOnce(true)
     fsPromesas.readFile.mockImplementationOnce(() => new Promise((resolve) => {
       resolve('[Hola mundo...](https:/prueba.io/)');
     }));
-    mdLinks('/existe.md').then((links) => {
+    mdLinks('/existe.md', false).then((links) => {
       expect(links).toEqual([
         {
           text: 'Hola mundo...',
@@ -53,36 +51,51 @@ describe('mdLinks', () => {
     });
   })
 
+  it('Deberia leer el archivo  Markdown y devolver los links validados', () => {
+    fs.existsSync.mockReturnValueOnce(true)
+    fsPromesas.readFile.mockImplementationOnce(() => new Promise((resolve) => {
+      resolve('[Hola links validados...](https:/prueba.2/)');
+    }));
+    axios.get.mockImplementationOnce(() => new Promise ((resolve) => {
+      resolve({ status: 200})
+    }));
+    mdLinks('/existe2.md', true).then((linksValidados) => {
+      expect(linksValidados).toEqual([
+        {
+          text: 'Hola links validados...',
+          href: 'https:/prueba.2/',
+          file: '/existe2.md',
+          status: 200,
+          ok: 'ok'
 
-  // it('Deberia generar un error al extraer los links', () => {  
-  //   fs.existsSync.mockReturnValueOnce(true);
-  //   fsPromesas.readFile.mockImplementationOnce(() => new Promise((resolve) => {
-  //     resolve('[Hola mundo...](https:/prueba.2/)');
-  //   }));
-  //   // mardownItMock.mockImplementationOnce(() => false);
-  //   mardownItMock.mockImplementation(() => { throw new Error('[¡Ocurrió un error!]'); });
-  //   mdLinks('/mockMardown.md').catch((links) => {
-  //     expect(links).toBe('[Error: ¡Ocurrió un error!]')
-  //   });
-  // })
+        },
+      ]);
+    });
+  })
 
-  // it('Deberia mostrar un error al devolver los links', () => {
-  //   jest.mock('markdown-it', () => {
-  //     return {
-  //       parse: mockMarkdownItParse,
-  //     };
-  //   });
-  //   // jest.mock('markdown-it');
+  
 
-  //   fs.existsSync.mockReturnValueOnce(true);
-  //   const mockMarkdownItParse = jest.fn(() => false);
-  //   // mardownItMock.parse.mockImplementationOnce(() => false);
-  //   fsPromesas.readFile.mockImplementationOnce(() => new Promise((resolve) => {
-  //     resolve('[Hola mundo...](https:/prueba.2/)');
-  //   }));
-  //   mdLinks('/existe.md').catch((links) => {
-  //     expect(links).toEqual('Ha ocurrido un error');
-  //   });
-  // })
+  it('Deberia leer el archivo  Markdown y devolver los links validados', () => {
+    fs.existsSync.mockReturnValueOnce(true)
+    fsPromesas.readFile.mockImplementationOnce(() => new Promise((resolve) => {
+      resolve('[Hola links validados...](https:/prueba/)');
+    }));
+    axios.get.mockImplementationOnce(() => new Promise ((resolve, reject) => {
+      reject({ status: 'El servidor no responde'})
+    }));
+
+    mdLinks('/existe2.md', true).then((linksValidados) => {
+      expect(linksValidados).toEqual([
+        {
+          text: 'Hola links validados...',
+          href: 'https:/prueba/',
+          file: '/existe2.md',
+          status: 'El servidor no responde',
+          ok: 'fail'
+
+        },
+      ]);
+    });
+  })
 
 });

@@ -1,5 +1,6 @@
 const fs = require('fs/promises');
 const MarkdownIt = require('markdown-it');
+const axios = require("axios");
 
 
 
@@ -40,5 +41,27 @@ function extractLinks(archivoLeido, absolutePath) {
 
 }
 
+function validateLink(link) { 
+    // console.log('links en validate', link);
+    // console.log('links.href', link.href);
+    return axios.get(link.href)
+        .then(function (response) {
+            // manejar respuesta exitosa
+            return {
+                status: response.status,
+                ok: response.status >= 200 && response.status < 400 ? "ok" : "fail",
+            }
 
-module.exports = { getFileContent, extractLinks };
+        })
+        .catch(function (error) {
+            // manejar error
+            return {
+                status: error.response ? error.response.status : "El servidor no responde",
+                ok: "fail",
+            }
+            
+        })
+}
+
+
+module.exports = { getFileContent, extractLinks, validateLink };
