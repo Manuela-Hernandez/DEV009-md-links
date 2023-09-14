@@ -19,6 +19,16 @@ describe('mdLinks', () => {
       expect(error).toBe('La ruta no existe');
     });
   })
+
+  it('Deberia verificar si la ruta s un directorio', () => {
+    fs.existsSync.mockReturnValueOnce(true)
+    fs.statSync.isDirectory.mockReturnValueOnce(true)
+    // fs.statSync.isDirectory = jest.fn().mockResolvedValue(true);
+    mdLinks('/ruta/inexistente.js').catch((error) => {
+      expect(error).toBe('No se encontraron archivos');
+    });
+  })
+
   it('Deberia de rechazar con un error si el archivo no es Markdown', () => {
     fs.existsSync.mockReturnValueOnce(true)
     mdLinks('/ruta/inexistente.js').catch((error) => {

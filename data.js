@@ -1,6 +1,7 @@
 const fs = require('fs/promises');
 const MarkdownIt = require('markdown-it');
 const axios = require("axios");
+const path = require('path');
 
 
 
@@ -41,7 +42,7 @@ function extractLinks(archivoLeido, absolutePath) {
 
 }
 
-function validateLink(link) { 
+function validateLink(link) {
     // console.log('links en validate', link);
     // console.log('links.href', link.href);
     return axios.get(link.href)
@@ -59,9 +60,49 @@ function validateLink(link) {
                 status: error.response ? error.response.status : "El servidor no responde",
                 ok: "fail",
             }
-            
+
         })
 }
 
+function validateMarkdown(absolutePath) {
+    const archivoMarkdown = ['.md', '.mkd', '.mdwn', '.mdown', '.mdtxt', '.mdtext', '.markdown', '.text'];
+    const extensionArchivo = path.extname(absolutePath);
+    if (archivoMarkdown.includes(extensionArchivo)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-module.exports = { getFileContent, extractLinks, validateLink };
+function processFile(absolutePath, validate) {
+    return new Promise((resolve, reject) => {
+      getFileContent(absolutePath).then((archivoLeido) => {
+        // console.log('archivoleido', archivoLeido)
+        extractLinks(archivoLeido, absolutePath).then((links) => {
+          // console.log("extractLinks")
+          // console.log("validate: ", validate)
+  
+          if (validate) {
+            const resultado = links.map(link => {
+              return validateLink(link).then((status) => {
+                return { ...link, ...status }
+              })
+            });
+  
+            Promise.all(resultado).then((linksValidados) => {
+              resolve(linksValidados);
+            })
+          } else {
+            resolve(links);
+          }
+        })
+      })
+        .catch((error) => {
+          reject(error)
+        });
+  
+    })
+  }
+
+
+module.exports = { getFileContent, extractLinks, validateLink, validateMarkdown, processFile };

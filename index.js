@@ -1,9 +1,9 @@
 const mdLinks = require('./mdlinks.js');
 
-mdLinks('./file.md', true)
+mdLinks('./README.md', false)
     .then((links) => {
         console.log("index: ", links);
     })
     .catch((error) => {
-        console.log(error)
+        console.log(error);
     });
