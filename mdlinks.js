@@ -1,50 +1,60 @@
 const fs = require('fs');
 const path = require('path');
-const { getFileContent, extractLinks, validateLink } = require('./data.js');
-const { error } = require('console');
-// const extraerLinks = require('./data.js');
+const { validateLinks, validateMarkdown, processFile } = require('./data.js');
 
 
 const mdLinks = (rutaPath, validate) => {
   return new Promise((resolve, reject) => {
     const absolutePath = path.resolve(rutaPath);
-    // console.log(absolutePath);
     if (!fs.existsSync(absolutePath)) {
       reject('La ruta no existe');
     }
-    const archivoMarkdown = ['.md', '.mkd', '.mdwn', '.mdown', '.mdtxt', '.mdtext', '.markdown', '.text'];
-    const extensionArchivo = path.extname(rutaPath);
-    // console.log(extensionArchivo);
-    if (!archivoMarkdown.includes(extensionArchivo)) {
-      reject('El archivo no es de tipo Markdown');
-    } else {
-      getFileContent(absolutePath).then((archivoLeido) => {
-        // console.log('archivoleido', archivoLeido)
-        extractLinks(archivoLeido, absolutePath).then((links) => {
-          // console.log("extractLinks")
-          // console.log("validate: ", validate)
-
-          if (validate) {
-            const resultado = links.map(link => {
-              return validateLink(link).then((status) => {
-                return { ...link, ...status }
+    const stats = fs.statSync(absolutePath);
+    if (stats.isDirectory()) {
+      const archivosDirectorio = fs.readdirSync(absolutePath);
+      if (archivosDirectorio.length === 0) {
+        reject('No se encontraron archivos');
+      }
+      const filter = archivosDirectorio.filter((file) => {
+        const absolutePathDirectory = path.join(absolutePath, file);
+        return validateMarkdown(absolutePathDirectory);
+      });
+      const resultDirectory = filter.map((archivoFiltrado) => {
+        return new Promise((resolve) => {
+          const absolutePathDirectory = path.join(absolutePath, archivoFiltrado);
+          processFile(absolutePathDirectory).then((links) => {
+            if(validate) {
+              validateLinks(links).then((linksValidados) => {
+                resolve(linksValidados);
               })
-            });
+            }else{
+              resolve(links);
+            }
+          })
+        })
 
-            Promise.all(resultado).then((linksValidados) => {
+      })
+      Promise.all(resultDirectory).then((links) => {
+        resolve(links.flat());
+      })
+    } else if (stats.isFile()) {
+      // if (validateMarkdown(absolutePath)) {
+        processFile(absolutePath).then((links) => {
+          if(validate) {
+            validateLinks(links).then((linksValidados) => {
               resolve(linksValidados);
             })
-          } else {
+          }else{
             resolve(links);
           }
         })
-      })
-        .catch((error) => {
-          reject(error)
-        });
     }
-
   })
 }
-module.exports = mdLinks;
 
+
+
+
+
+
+module.exports = mdLinks;

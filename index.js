@@ -5,5 +5,5 @@ mdLinks('./file.md', true)
         console.log("index: ", links);
     })
     .catch((error) => {
-        console.log(error)
+        console.log(error);
     });
