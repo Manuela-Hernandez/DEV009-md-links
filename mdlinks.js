@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { validateMarkdown, processFile } = require('./data.js');
+const { validateLinks, validateMarkdown, processFile } = require('./data.js');
 
 
 const mdLinks = (rutaPath, validate) => {
@@ -22,8 +22,14 @@ const mdLinks = (rutaPath, validate) => {
       const resultDirectory = filter.map((archivoFiltrado) => {
         return new Promise((resolve) => {
           const absolutePathDirectory = path.join(absolutePath, archivoFiltrado);
-          processFile(absolutePathDirectory, validate).then((links) => {
-            resolve(links);
+          processFile(absolutePathDirectory).then((links) => {
+            if(validate) {
+              validateLinks(links).then((linksValidados) => {
+                resolve(linksValidados);
+              })
+            }else{
+              resolve(links);
+            }
           })
         })
 
@@ -33,14 +39,16 @@ const mdLinks = (rutaPath, validate) => {
       })
     } else if (stats.isFile()) {
       // if (validateMarkdown(absolutePath)) {
-        processFile(absolutePath, validate).then((links) => {
-          resolve(links);
+        processFile(absolutePath).then((links) => {
+          if(validate) {
+            validateLinks(links).then((linksValidados) => {
+              resolve(linksValidados);
+            })
+          }else{
+            resolve(links);
+          }
         })
-      // } else {
-      //   reject('El archivo no es de tipo Markdown');
-      // }
     }
-
   })
 }
 

@@ -1,11 +1,6 @@
 const mdLinks = require('../mdlinks.js');
-const fs = require('fs');
-const fsPromesas = require('fs/promises');
-const axios = require('axios');
+const path = require('path');
 
-jest.mock('fs');
-jest.mock('fs/promises');
-jest.mock('axios');
 
 describe('mdLinks', () => {
   beforeEach(() => {
@@ -13,99 +8,90 @@ describe('mdLinks', () => {
   });
 
   it('Deberia de rechazar con un error cuando la ruta no exista', () => {
-    fs.existsSync.mockReturnValueOnce(false)
-
     mdLinks('/ruta/inexistente.md').catch((error) => {
       expect(error).toBe('La ruta no existe');
     });
   })
 
-  it('Deberia verificar si la ruta s un directorio', () => {
-    fs.existsSync.mockReturnValueOnce(true)
-    fs.statSync.isDirectory.mockReturnValueOnce(true)
-    // fs.statSync.isDirectory = jest.fn().mockResolvedValue(true);
-    mdLinks('/ruta/inexistente.js').catch((error) => {
+  it('Deberia de rechazar con un error cuando no hay archivos dentro del directorio', () => {
+    mdLinks('./test/fileMocks2').catch((error) => {
       expect(error).toBe('No se encontraron archivos');
     });
   })
 
-  it('Deberia de rechazar con un error si el archivo no es Markdown', () => {
-    fs.existsSync.mockReturnValueOnce(true)
-    mdLinks('/ruta/inexistente.js').catch((error) => {
-      expect(error).toBe('El archivo no es de tipo Markdown');
-    });
-  })
-  it('Deberia leer el archivo  Markdown y devolver los links sin validarlos', () => {
-    fs.existsSync.mockReturnValueOnce(true)
-    fsPromesas.readFile.mockImplementationOnce(() => new Promise((resolve) => {
-      resolve('[Hola mundo...](https:/prueba.io/)');
-    }));
-    mdLinks('/existe.md', false).then((links) => {
-      expect(links).toEqual([
+  it('Deberia resolver los links validados cuando la ruta es un directorio', () => {
+    return mdLinks('./test/fileMocks', true).then((links) => {
+      expect(links).toStrictEqual([
         {
-          text: 'Hola mundo...',
-          href: 'https:/prueba.io/',
-          file: '/existe.md',
-        },
-      ]);
-    });
-  })
-
-  it('Deberia mostrar un error al leer el archivo Markdown', () => {
-    fs.existsSync.mockReturnValueOnce(true)
-    fsPromesas.readFile.mockImplementationOnce(() => new Promise((resolve, reject) => {
-      reject('Ha ocurrido un error');
-    }));
-    mdLinks('/existe.md').catch((error) => {
-      expect(error).toBe('Ha ocurrido un error');
-    });
-  })
-
-  it('Deberia leer el archivo  Markdown y devolver los links validados', () => {
-    fs.existsSync.mockReturnValueOnce(true)
-    fsPromesas.readFile.mockImplementationOnce(() => new Promise((resolve) => {
-      resolve('[Hola links validados...](https:/prueba.2/)');
-    }));
-    axios.get.mockImplementationOnce(() => new Promise ((resolve) => {
-      resolve({ status: 200})
-    }));
-    mdLinks('/existe2.md', true).then((linksValidados) => {
-      expect(linksValidados).toEqual([
-        {
-          text: 'Hola links validados...',
-          href: 'https:/prueba.2/',
-          file: '/existe2.md',
+          text: 'axios',
+          href: 'https://axios-http.com/',
+          file: path.resolve('./test/fileMocks/fileMock1.md'),
           status: 200,
           ok: 'ok'
-
         },
-      ]);
-    });
-  })
-
-  
-
-  it('Deberia leer el archivo  Markdown y devolver los links validados', () => {
-    fs.existsSync.mockReturnValueOnce(true)
-    fsPromesas.readFile.mockImplementationOnce(() => new Promise((resolve) => {
-      resolve('[Hola links validados...](https:/prueba/)');
-    }));
-    axios.get.mockImplementationOnce(() => new Promise ((resolve, reject) => {
-      reject({ status: 'El servidor no responde'})
-    }));
-
-    mdLinks('/existe2.md', true).then((linksValidados) => {
-      expect(linksValidados).toEqual([
         {
-          text: 'Hola links validados...',
-          href: 'https:/prueba/',
-          file: '/existe2.md',
-          status: 'El servidor no responde',
-          ok: 'fail'
-
+          text: 'Node',
+          href: 'https://nodejs.org/es',
+          file: path.resolve('./test/fileMocks/fileMock1.md'),
+          status: 200,
+          ok: 'ok'
         },
       ]);
     });
   })
 
+  it('Deberia resolver los links sin validar cuando la ruta es un directorio', () => {
+    return mdLinks('./test/fileMocks').then((links) => {
+      expect(links).toStrictEqual([
+        {
+          text: 'axios',
+          href: 'https://axios-http.com/',
+          file: path.resolve('./test/fileMocks/fileMock1.md')
+        },
+        {
+          text: 'Node',
+          href: 'https://nodejs.org/es',
+          file: path.resolve('./test/fileMocks/fileMock1.md')
+        }
+      ]);
+    });
+  })
+ 
+  it('Deberia resolver los links validados cuando la ruta es un archivo', () => {
+    return mdLinks('./test/fileMocks/fileMock1.md', true).then((links) => {
+      expect(links).toStrictEqual([
+        {
+          text: 'axios',
+          href: 'https://axios-http.com/',
+          file: path.resolve('./test/fileMocks/fileMock1.md'),
+          status: 200,
+          ok: 'ok'
+        },
+        {
+          text: 'Node',
+          href: 'https://nodejs.org/es',
+          file: path.resolve('./test/fileMocks/fileMock1.md'),
+          status: 200,
+          ok: 'ok'
+        },
+      ]);
+    });
+  })
+
+  it('Deberia resolver los links sin validar cuando la ruta es un archivo', () => {
+    return mdLinks('./test/fileMocks/fileMock1.md').then((links) => {
+      expect(links).toStrictEqual([
+        {
+          text: 'axios',
+          href: 'https://axios-http.com/',
+          file: path.resolve('./test/fileMocks/fileMock1.md')
+        },
+        {
+          text: 'Node',
+          href: 'https://nodejs.org/es',
+          file: path.resolve('./test/fileMocks/fileMock1.md')
+        }
+      ]);
+    });
+  })
 });

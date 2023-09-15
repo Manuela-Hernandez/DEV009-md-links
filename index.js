@@ -1,6 +1,6 @@
 const mdLinks = require('./mdlinks.js');
 
-mdLinks('./README.md', false)
+mdLinks('./file.md', true)
     .then((links) => {
         console.log("index: ", links);
     })

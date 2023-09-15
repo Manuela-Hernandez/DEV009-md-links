@@ -1,4 +1,4 @@
-# Markdown Links
+<!-- # Markdown Links
 
 ## Índice
 
@@ -12,7 +12,7 @@
 * [8. Pistas, tips y lecturas complementarias](#8-pistas-tips-y-lecturas-complementarias)
 * [9. Para pedir project feedback](#9-para-pedir-project-feedback)
 
-***
+*** -->
 
 ## 1. Preámbulo
 
@@ -33,7 +33,7 @@ algunas estadísticas.
 
 ![md-links](https://github.com/Laboratoria/bootcamp/assets/12631491/fc6bc380-7824-4fab-ab8f-7ab53cd9d0e4)
 
-## 2. Resumen del proyecto
+<!-- ## 2. Resumen del proyecto
 
 En este proyecto desarrollarás una librería en Node.js que funcionará como
 herramienta para analizar links dentro de archivos Markdown. Esta librería
@@ -60,9 +60,9 @@ consideración en peculiaridades del lenguaje, convenciones y buenas prácticas.
 Al finalizar, podrás instalar esta librería utilizando NPM (Node Package
 Manager), que facilita la búsqueda e instalación de librerías de Node a
 través de su registro y también de GitHub. Una vez que hayas subido la
-librería a tu repositorio público, será accesible para otras developers.
+librería a tu repositorio público, será accesible para otras developers. -->
 
-## 3. Objetivos de aprendizaje
+<!-- ## 3. Objetivos de aprendizaje
 
 
 Reflexiona y luego marca los objetivos que has llegado a entender y aplicar en tu proyecto. Piensa en eso al decidir tu estrategia de trabajo.
@@ -73,16 +73,16 @@ Reflexiona y luego marca los objetivos que has llegado a entender y aplicar en t
 
 - [ ] **Arrays (arreglos)**
 
-  <details><summary>Links</summary><p>
+  <details><summary>Links</summary><p> -->
 
-  * [Arreglos](https://curriculum.laboratoria.la/es/topics/javascript/04-arrays)
+  <!-- * [Arreglos](https://curriculum.laboratoria.la/es/topics/javascript/04-arrays)
   * [Array - MDN](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/)
   * [Array.prototype.sort() - MDN](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)
   * [Array.prototype.forEach() - MDN](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
   * [Array.prototype.map() - MDN](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
   * [Array.prototype.filter() - MDN](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
   * [Array.prototype.reduce() - MDN](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce)
-</p></details>
+</p></details> -->
 
 - [ ] **Objetos (key, value)**
 
