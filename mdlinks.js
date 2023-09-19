@@ -37,7 +37,7 @@ const mdLinks = (rutaPath, validate) => {
       Promise.all(resultDirectory).then((links) => {
         resolve(links.flat());
       })
-    } else if (stats.isFile()) {
+    } else {
       // if (validateMarkdown(absolutePath)) {
         processFile(absolutePath).then((links) => {
           if(validate) {
