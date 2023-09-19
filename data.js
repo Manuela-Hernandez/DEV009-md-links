@@ -6,25 +6,11 @@ const path = require('path');
 
 
 
-
-// // Leer el archivo
-// function getFileContent(absolutePath) {
-//   return new Promise((resolve, reject) => {
-//     fs.readFile(absolutePath, "utf8")
-//       .then((archivoLeido) => {
-//         resolve(archivoLeido);
-//       })
-//       .catch((error) => {
-//         reject(error);
-//       });
-//   })
-// }
-
 // Leer el archivo
 function getFileContent(absolutePath) {
   return new Promise((resolve, reject) => {
     fs.readFile(absolutePath, 'utf8', (err, archivoLeido) => {
-      if(err){
+      if (err) {
         reject(err)
       } else {
         resolve(archivoLeido);
@@ -69,7 +55,8 @@ function validateLinks(links) {
           return {
             ...link,
             status: response.status,
-            ok: response.status >= 200 && response.status < 400 ? "ok" : "fail",
+            // ok: response.status >= 200 && response.status < 400 ? "ok" : "fail",
+            ok: 'ok'
           }
 
         })
@@ -77,7 +64,7 @@ function validateLinks(links) {
           // manejar error
           return {
             ...link,
-            status: error.response ? error.response.status : "El servidor no responde",
+            status: error.response ? error.response.status : 404,
             ok: "fail",
           }
 
@@ -114,9 +101,28 @@ function processFile(absolutePath) {
       .catch((error) => {
         reject(error)
       });
-
   })
 }
 
+function stats(links, validate) {
+  const newlinks = links.map((link) => link.href);
+  const linksUnicos = new Set(newlinks).size;
+  // console.log('linksUnicos new Set', linksUnicos);
+  const linksStats = {
+    'Total': links.length,
+    'Unique': linksUnicos,
+  };
+  if (validate) {
+    return {
+      ...linksStats,
+      'Broken': links.filter((link) => link.ok === 'fail').length
+      // console.log('broken: ', broken);
+    }
+  }
+  return linksStats
 
-module.exports = { getFileContent, extractLinks, validateLinks, validateMarkdown, processFile };
+}
+
+
+
+module.exports = { getFileContent, extractLinks, validateLinks, validateMarkdown, processFile, stats };

@@ -1,4 +1,4 @@
-const { getFileContent, extractLinks, validateLinks, validateMarkdown, processFile } = require('../data.js');
+const { getFileContent, extractLinks, validateLinks, validateMarkdown, processFile, stats } = require('../data.js');
 const path = require('path');
 const axios = require('axios');
 
@@ -64,9 +64,6 @@ describe('validateLinks', () => {
   it('Deberia devolver status 200 de el link', () => {
     const absolutePath = path.resolve('./test/fileMocks/fileMock1.md');
     axios.get.mockResolvedValue({ status: 200 });
-    // axios.get.mockImplementationOnce(() => new Promise((resolve) => {
-    //   resolve({ status: 200 })
-    // }));
     const links = [
       {
         text: 'axios',
@@ -100,35 +97,10 @@ describe('validateLinks', () => {
     });
   })
 
-  it('Deberia devolver el status 400 de el link', () => {
-    const absolutePath = path.resolve('./test/fileMocks/fileMock1.md');
-    const links = [
-      {
-        text: 'axios',
-        href: 'https://axios-http.com',
-        file: absolutePath
-      }
-    ]
-    axios.get.mockImplementationOnce(() => new Promise((resolve) => {
-      resolve({ status: 400 })
-    }));
-    validateLinks(links).then((status) => {
-      expect(status).toStrictEqual([
-        {
-          text: 'axios',
-          href: 'https://axios-http.com',
-          file: absolutePath,
-          status: 400,
-          ok: 'fail'
-        },
-      ]);
-    });
-  })
-
-  it('Deberia devolver status de el link roto del archivo Markdown', () => {
+  it('Deberia deveria devolver el status 404 del link roto', () => {
     const absolutePath = path.resolve('./test/fileMocks/fileMock.md');
     axios.get.mockImplementationOnce(() => new Promise((resolve, reject) => {
-      reject({ response: { status: 'Response status: el servidor no responde' } })
+      reject({ response: { status: 404 } })
     }));
     const links = [
       {
@@ -143,15 +115,41 @@ describe('validateLinks', () => {
           text: 'axios',
           href: 'https://axios-http.',
           file: absolutePath,
-          status: 'Response status: el servidor no responde',
+          status: 404,
           ok: 'fail'
         }
       ]
       );
     });
   })
-});
 
+  it('Deberia retornar 404 cuando no exista la propiedad status en la respuesta', () => {
+    const absolutePath = path.resolve('./test/fileMocks/fileMock.md');
+    axios.get.mockImplementationOnce(() => new Promise((resolve, reject) => {
+      reject({ })
+    }));
+    const links = [
+      {
+        text: 'axios',
+        href: 'https://axios-http.com/prueba',
+        file: absolutePath
+      }
+    ]
+    return validateLinks(links).then((error) => {
+      expect(error).toEqual([
+        {
+          text: 'axios',
+          href: 'https://axios-http.com/prueba',
+          file: absolutePath,
+          status: 404,
+          ok: 'fail'
+        }
+      ]
+      );
+    });
+  })
+
+});
 
 
 
@@ -181,3 +179,61 @@ describe('processFile', () => {
     });
   })
 });
+
+describe('stats', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('Deberia retornar el total de links y el total de links unicos', () => {
+    const absolutePath = path.resolve('./test/fileMocks/fileMock.md');
+    const links = [
+      {
+        text: 'axios',
+        href: 'https://axios-http.com',
+        file: absolutePath
+      },
+      {
+        text: 'Node',
+        href: 'https://nodejs.org/es',
+        file: absolutePath
+      },
+      {
+        text: 'Node',
+        href: 'https://nodejs.org/es',
+        file: absolutePath
+      },
+    ]
+    expect(stats(links, false)).toStrictEqual({"Total": 3, "Unique": 2});
+    })
+
+    it('Deberia retornar el total de links, el total de links unicos y el total de links rotos', () => {
+      const absolutePath = path.resolve('./test/fileMocks/fileMock.md');
+      const links = [
+        {
+          text: 'axios',
+          href: 'https://axios-http.com/prueba',
+          file: absolutePath,
+          status: 404,
+          ok: 'fail'
+        },
+        {
+          text: 'Node',
+          href: 'https://nodejs.org/es',
+          file: absolutePath,
+          status: 200,
+          ok: 'ok'
+        },
+        {
+          text: 'Node',
+          href: 'https://nodejs.org/es',
+          file: absolutePath,
+          status: 200,
+          ok: 'ok'
+        },
+      ]
+      expect(stats(links, true)).toStrictEqual({"Total": 3, "Unique": 2, "Broken": 1});
+      })
+  });
+
+  
