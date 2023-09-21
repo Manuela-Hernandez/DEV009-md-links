@@ -1,4 +1,3 @@
-// const fs = require('fs/promises');
 const fs = require('fs');
 const MarkdownIt = require('markdown-it');
 const axios = require("axios");
@@ -19,7 +18,7 @@ function getFileContent(absolutePath) {
   })
 }
 
-
+// Extraer links
 function extractLinks(archivoLeido, absolutePath) {
   // console.log(archivoLeido);
   return new Promise((resolve, reject) => {
@@ -41,24 +40,20 @@ function extractLinks(archivoLeido, absolutePath) {
     }
     resolve(links);
   })
-
 }
 
+// Validar links
 function validateLinks(links) {
-  // console.log('links en validate', links);
   return new Promise((resolve) => {
     const resultValidate = links.map(link => {
-      // console.log('links.href', link.href);
       return axios.get(link.href)
         .then(function (response) {
           // manejar respuesta exitosa
           return {
             ...link,
             status: response.status,
-            // ok: response.status >= 200 && response.status < 400 ? "ok" : "fail",
             ok: 'ok'
           }
-
         })
         .catch(function (error) {
           // manejar error
@@ -67,17 +62,16 @@ function validateLinks(links) {
             status: error.response ? error.response.status : 404,
             ok: "fail",
           }
-
         })
     })
     Promise.all(resultValidate).then((linksValidados) => {
-      // console.log('links validados en resolve: ', linksValidados);
       resolve(linksValidados);
     })
   })
 
 }
 
+// Validar Markdown
 function validateMarkdown(absolutePath) {
   const archivoMarkdown = ['.md', '.mkd', '.mdwn', '.mdown', '.mdtxt', '.mdtext', '.markdown', '.text'];
   const extensionArchivo = path.extname(absolutePath);
@@ -88,6 +82,7 @@ function validateMarkdown(absolutePath) {
   }
 }
 
+// Procesar archivo
 function processFile(absolutePath) {
   return new Promise((resolve, reject) => {
     getFileContent(absolutePath).then((archivoLeido) => {
@@ -104,10 +99,10 @@ function processFile(absolutePath) {
   })
 }
 
+// Estadísticas
 function stats(links, validate) {
   const newlinks = links.map((link) => link.href);
   const linksUnicos = new Set(newlinks).size;
-  // console.log('linksUnicos new Set', linksUnicos);
   const linksStats = {
     'Total': links.length,
     'Unique': linksUnicos,
@@ -116,13 +111,28 @@ function stats(links, validate) {
     return {
       ...linksStats,
       'Broken': links.filter((link) => link.ok === 'fail').length
-      // console.log('broken: ', broken);
     }
   }
   return linksStats
+}
 
+// Leer directorios
+function readDirectories(absolutePath, arrayOfFiles = []) {
+  const archivosDirectorio = fs.readdirSync(absolutePath);
+  archivosDirectorio.forEach(file => {
+    const absolutePathFile = path.join(absolutePath, file)
+		const stat = fs.statSync(absolutePathFile)
+		if(stat.isDirectory()){
+			readDirectories(absolutePathFile, arrayOfFiles)
+		}else{
+			arrayOfFiles.push(absolutePathFile)
+		}
+	}
+	)
+	return arrayOfFiles
 }
 
 
 
-module.exports = { getFileContent, extractLinks, validateLinks, validateMarkdown, processFile, stats };
+
+module.exports = { getFileContent, extractLinks, validateLinks, validateMarkdown, processFile, stats, readDirectories };

@@ -1,4 +1,4 @@
-const { getFileContent, extractLinks, validateLinks, validateMarkdown, processFile, stats } = require('../data.js');
+const { getFileContent, extractLinks, validateLinks, validateMarkdown, processFile, stats, readDirectories } = require('../data.js');
 const path = require('path');
 const axios = require('axios');
 
@@ -126,7 +126,7 @@ describe('validateLinks', () => {
   it('Deberia retornar 404 cuando no exista la propiedad status en la respuesta', () => {
     const absolutePath = path.resolve('./test/fileMocks/fileMock.md');
     axios.get.mockImplementationOnce(() => new Promise((resolve, reject) => {
-      reject({ })
+      reject({})
     }));
     const links = [
       {
@@ -204,36 +204,53 @@ describe('stats', () => {
         file: absolutePath
       },
     ]
-    expect(stats(links, false)).toStrictEqual({"Total": 3, "Unique": 2});
-    })
+    expect(stats(links, false)).toStrictEqual({ "Total": 3, "Unique": 2 });
+  })
 
-    it('Deberia retornar el total de links, el total de links unicos y el total de links rotos', () => {
-      const absolutePath = path.resolve('./test/fileMocks/fileMock.md');
-      const links = [
-        {
-          text: 'axios',
-          href: 'https://axios-http.com/prueba',
-          file: absolutePath,
-          status: 404,
-          ok: 'fail'
-        },
-        {
-          text: 'Node',
-          href: 'https://nodejs.org/es',
-          file: absolutePath,
-          status: 200,
-          ok: 'ok'
-        },
-        {
-          text: 'Node',
-          href: 'https://nodejs.org/es',
-          file: absolutePath,
-          status: 200,
-          ok: 'ok'
-        },
-      ]
-      expect(stats(links, true)).toStrictEqual({"Total": 3, "Unique": 2, "Broken": 1});
-      })
+  it('Deberia retornar el total de links, el total de links unicos y el total de links rotos', () => {
+    const absolutePath = path.resolve('./test/fileMocks/fileMock.md');
+    const links = [
+      {
+        text: 'axios',
+        href: 'https://axios-http.com/prueba',
+        file: absolutePath,
+        status: 404,
+        ok: 'fail'
+      },
+      {
+        text: 'Node',
+        href: 'https://nodejs.org/es',
+        file: absolutePath,
+        status: 200,
+        ok: 'ok'
+      },
+      {
+        text: 'Node',
+        href: 'https://nodejs.org/es',
+        file: absolutePath,
+        status: 200,
+        ok: 'ok'
+      },
+    ]
+    expect(stats(links, true)).toStrictEqual({ "Total": 3, "Unique": 2, "Broken": 1 });
+  })
+});
+
+describe('readDirectories', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  
+  it('Deberia retornar un array con los todos archivos del directorio y sub-directorios ', () => {
+    expect(readDirectories('./test/fileMocks')).toStrictEqual(
+      [
+        "test/fileMocks/fileMock1.md",
+        "test/fileMocks/fileMocks2/fileMock2.md",
+        "test/fileMocks/fileTxt.txt",
+        "test/fileMocks/sinLinks.md",
+      ]);
+
+  })
+});
+
+
