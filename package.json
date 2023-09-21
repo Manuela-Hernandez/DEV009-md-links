@@ -1,6 +1,8 @@
 {
-  "name": "md-links",
+  "name": "md-links-mho",
   "version": "0.1.0",
+  "main": "index.js",
+  "author": "Manuela Hernandez",
   "engines": {
     "node": ">=16.x"
   },
@@ -10,13 +12,20 @@
   },
   "dependencies": {
     "axios": "^1.5.0",
-    "jest": "^29.6.4",
     "markdown-it": "^13.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.6.4"
   },
   "scripts": {
     "test": "jest --coverage"
   },
+  "license": "MIT",
   "bin":{
     "mdlinks": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Manuela-Hernandez/DEV009-md-links"
   }
 }

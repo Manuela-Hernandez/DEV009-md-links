@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { validateLinks, validateMarkdown, processFile } = require('./data.js');
+const { validateLinks, validateMarkdown, processFile, readDirectories } = require('./data.js');
 
 
 const mdLinks = (rutaPath, validate) => {
@@ -11,7 +11,7 @@ const mdLinks = (rutaPath, validate) => {
     }
     const stats = fs.statSync(absolutePath);
     if (stats.isDirectory()) {
-      const archivosDirectorio = fs.readdirSync(absolutePath);
+      const archivosDirectorio = readDirectories(absolutePath);
       if (archivosDirectorio.length === 0) {
         reject('No se encontraron archivos');
       }
@@ -21,8 +21,7 @@ const mdLinks = (rutaPath, validate) => {
       });
       const resultDirectory = filter.map((archivoFiltrado) => {
         return new Promise((resolve) => {
-          const absolutePathDirectory = path.join(absolutePath, archivoFiltrado);
-          processFile(absolutePathDirectory).then((links) => {
+          processFile(archivoFiltrado).then((links) => {
             if(validate) {
               validateLinks(links).then((linksValidados) => {
                 resolve(linksValidados);
@@ -38,7 +37,6 @@ const mdLinks = (rutaPath, validate) => {
         resolve(links.flat());
       })
     } else {
-      // if (validateMarkdown(absolutePath)) {
         processFile(absolutePath).then((links) => {
           if(validate) {
             validateLinks(links).then((linksValidados) => {
@@ -51,7 +49,6 @@ const mdLinks = (rutaPath, validate) => {
     }
   })
 }
-
 
 
 

@@ -14,7 +14,7 @@ describe('mdLinks', () => {
   })
 
   it('Deberia de rechazar con un error cuando no hay archivos dentro del directorio', () => {
-    mdLinks('./test/fileMocks2').catch((error) => {
+    mdLinks('./test/fileMocks3').catch((error) => {
       expect(error).toBe('No se encontraron archivos');
     });
   })
@@ -36,6 +36,13 @@ describe('mdLinks', () => {
           status: 200,
           ok: 'ok'
         },
+        {
+          text: 'Figma',
+          href: 'https://www.figma.com/',
+          file: path.resolve('./test/fileMocks/fileMocks2/fileMock2.md'),
+          status: 200,
+          ok: 'ok'
+        }
       ]);
     });
   })
@@ -52,7 +59,12 @@ describe('mdLinks', () => {
           text: 'Node',
           href: 'https://nodejs.org/es',
           file: path.resolve('./test/fileMocks/fileMock1.md')
-        }
+        },
+        {
+          text: 'Figma',
+          href: 'https://www.figma.com/',
+          file: path.resolve('./test/fileMocks/fileMocks2/fileMock2.md'),
+        },
       ]);
     });
   })
