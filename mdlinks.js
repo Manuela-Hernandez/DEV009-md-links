@@ -37,6 +37,7 @@ const mdLinks = (rutaPath, validate) => {
         resolve(links.flat());
       })
     } else {
+      if(validateMarkdown(absolutePath)) { 
         processFile(absolutePath).then((links) => {
           if(validate) {
             validateLinks(links).then((linksValidados) => {
@@ -46,6 +47,9 @@ const mdLinks = (rutaPath, validate) => {
             resolve(links);
           }
         })
+      } else {
+        reject ('El archivo no es markdown');
+      }
     }
   })
 }
