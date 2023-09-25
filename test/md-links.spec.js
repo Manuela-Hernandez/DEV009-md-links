@@ -106,4 +106,10 @@ describe('mdLinks', () => {
       ]);
     });
   })
+
+  it('Deberia de rechazar con un error cuando se pasa la ruta de un archivo y no Markdown', () => {
+    mdLinks('./test/fileMocks/fileTxt.txt').catch((error) => {
+      expect(error).toBe('El archivo no es markdown');
+    });
+  })
 });

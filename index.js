@@ -10,9 +10,9 @@ const statsLinks = process.argv.includes('--stats');
 mdLinks(path, validate)
     .then((links) => {
         if(statsLinks){
-            console.log('stats en index: ', stats(links, validate));
+            console.log( stats(links, validate));
         }else {
-            console.log("index: ", links);
+            console.log(links);
         }
 
     })
