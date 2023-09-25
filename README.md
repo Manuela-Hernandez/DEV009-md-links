@@ -19,7 +19,7 @@ Estos archivos `Markdown` normalmente contienen _links_ (vínculos/ligas) que
 muchas veces están rotos o ya no son válidos y eso perjudica mucho el valor de la información que se quiere compartir.
 
 ## 2. Diagrama de flujo 
-![Diagrama de flujo](/img/Diagrama%20flujo%20mdlinks.png)
+![Diagrama de flujo](/img/Diagrama-de-flujo.png)
 
 ## 3. Planificación del proyecto
 
